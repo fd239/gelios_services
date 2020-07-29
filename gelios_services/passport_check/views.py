@@ -1,26 +1,22 @@
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, Http404
 from django.shortcuts import redirect, render
 
 from .forms import FilePathForm
 
-def passport_update(request, path):
+
+
+# @login_required
+def passport_update(request):
     
     if request.method == 'POST':
+        form = FilePathForm(request.POST)
+        if form.is_valid():
+            return render(request, 'passport_update.html', {'form': form})
 
-        form = PostForm(request.POST)
+    else:
+        form = FilePathForm()
 
-        post = form.save(commit=False)
-        post.author = request.user
-        post.save()
-
-        return redirect(reverse('post_view', kwargs={
-            'username': username, 'post_id': post_id}))
-
-    content = {
-        'form': form,
-        'post': user_post,
-    }
-
-    return render(request, 'new_post.html', content)
+    return render(request, 'passport_update.html', {'form': form})
 
