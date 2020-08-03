@@ -3,17 +3,14 @@
 {% endblock %}
 
 <form method="post" enctype="multipart/form-data">
-    
-    {% csrf_token %}
-
-    {% for field in form %}
-        {{ field.text|safe }}
-    {% endfor %}
-
-    <button>
-        Обновить
-    </button>
-
+    <input type="file" name="list_of_expired_passports" />
+    <input type="submit" name="submit" value="Upload" />
 </form>
- for="your_name">Your name: </label>
-<input id="your_name" type="text" name="your_name" maxlength="100" required>
+
+{% if updated %}
+{% if updated_successfully %}
+Обновлено успешно
+{% else %}
+Обновлено с ошибками
+{% endif %}
+{% endif %}
