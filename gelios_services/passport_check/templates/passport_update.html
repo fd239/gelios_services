@@ -2,15 +2,17 @@
 Обновить реестр
 {% endblock %}
 
-<form method="post" enctype="multipart/form-data">
-    <input type="file" name="list_of_expired_passports" />
-    <input type="submit" name="submit" value="Upload" />
+<form action="." method="post" id="add_user_form">
+
+    {% csrf_token %}
+
+    {{ form.file_path }}
+    <input type="submit" name="submit" value="Загрузить" />
+
 </form>
 
 {% if updated %}
-{% if updated_successfully %}
 Обновлено успешно
 {% else %}
 Обновлено с ошибками
-{% endif %}
 {% endif %}
