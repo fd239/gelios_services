@@ -47,15 +47,15 @@ def passport_auto_update(request):
         open(newfilepath, 'wb').write(data)
 
         df = pd.read_csv(newfilepath, dtype={
-            0: 'S4', 1: 'S6'}, encoding='utf-8')
+            0: 'S4', 1: 'S6'}, encoding='utf-8', chunksize=100000)
 
         df.insert(0, 'id', range(0, len(df)))
         df.to_sql('passport_check_passport', sqliteConnection,
-                  if_exists='replace', index=False)
+                  if_exists='replace', index=False, chunksize=100000)
 
-        # createSecondaryIndex = 'CREATE INDEX num_serries_index ON parts (PASSP_SERIES, PASSP_NUMBER)'
-        # sqliteCursor = sqliteConnection.cursor()
-        # sqliteCursor.execute(createSecondaryIndex)
+        createSecondaryIndex = 'CREATE INDEX num_serries_index ON parts (PASSP_SERIES, PASSP_NUMBER)'
+        sqliteCursor = sqliteConnection.cursor()
+        sqliteCursor.execute(createSecondaryIndex)
     except IOError as e:
         return HttpResponse(f'<html><body>{e}</body></html>')
 
