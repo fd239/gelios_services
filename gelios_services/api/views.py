@@ -12,8 +12,8 @@ PASSPORT_NOT_FOUND_COMMENT = 'Среди недействительных не �
 @api_view(['POST'])
 def passport_check(request):
 
-    SERIES = request.POST.get('series')
-    NUBMER = request.POST.get('number')
+    SERIES = request.POST.get('series').encode('utf-8')
+    NUBMER = request.POST.get('number').encode('utf-8')
 
     if SERIES is None or NUBMER is None:
         return Response({'result': False, 'comment': 'Указаны не правильные параметры запроса'}, status=status.HTTP_400_BAD_REQUEST, content_type='application/json')
