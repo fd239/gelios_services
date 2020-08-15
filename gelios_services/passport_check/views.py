@@ -54,7 +54,7 @@ def passport_auto_update(request):
     # sqliteCursor = sqliteConnection.cursor()
     # sqliteCursor.execute(createSecondaryIndex)
 
-   return HttpResponse('<html><body>Done.</body></html>')
+    return HttpResponse('<html><body>Done.</body></html>')
 
 
 def create_id(row):
