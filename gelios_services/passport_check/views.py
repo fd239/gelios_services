@@ -50,9 +50,11 @@ def passport_auto_update(request):
     df.to_sql('passport_check_passport', sqliteConnection,
               if_exists='replace', index=False, chunksize=70000)
 
-    createSecondaryIndex = 'CREATE INDEX num_serries_index ON parts (PASSP_SERIES, PASSP_NUMBER)'
-    sqliteCursor = sqliteConnection.cursor()
-    sqliteCursor.execute(createSecondaryIndex)
+    # createSecondaryIndex = 'CREATE INDEX num_serries_index ON parts (PASSP_SERIES, PASSP_NUMBER)'
+    # sqliteCursor = sqliteConnection.cursor()
+    # sqliteCursor.execute(createSecondaryIndex)
+
+    return Response({'result': 'Success', status=status.HTTP_200_OK, content_type='application/json')
 
 
 def create_id(row):
