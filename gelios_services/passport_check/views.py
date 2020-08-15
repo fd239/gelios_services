@@ -55,13 +55,12 @@ def passport_auto_update(request):
     except IOError as e:
         return HttpResponse(f'<html><body>{e}</body></html>')
 
-
-     try:
+    try:
         df.to_sql('passport_check_passport', sqliteConnection,
-              if_exists='replace', index=False)
+                  if_exists='replace', index=False)
     except IOError as e:
         return HttpResponse(f'<html><body>{e}</body></html>')
-    
+
     # createSecondaryIndex = 'CREATE INDEX num_serries_index ON parts (PASSP_SERIES, PASSP_NUMBER)'
     # sqliteCursor = sqliteConnection.cursor()
     # sqliteCursor.execute(createSecondaryIndex)
