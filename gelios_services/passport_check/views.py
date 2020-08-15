@@ -36,6 +36,10 @@ def passport_auto_update(request):
 
     sqliteConnection = sqlite3.connect(
         settings.DATABASES['default']['NAME'])
+
+    sqliteConnection.cursor()
+    sqliteConnection.execute('DELETE FROM passport_check_passport')
+
     request_result = urllib.request.urlretrieve(
         PASSPORT_LIST_URL, 'list_of_expired_passports.bz2')
 
@@ -46,9 +50,9 @@ def passport_auto_update(request):
     open(newfilepath, 'wb').write(data)
 
     last_id = 0
-    for chunk in pd.read_csv(newfilepath, dtype={0: 'S4', 1: 'S6'}, encoding='utf-8', chunksize=250000):
-        chunk.insert(last_id, 'id', range(last_id, len(chunk)))
-        last_id += len(chunk) + 1
+    for chunk in pd.read_csv(newfilepath, dtype={0: 'S4', 1: 'S6'}, encoding='utf-8', chunksize=50000000):
+        # chunk.insert(0, 'id', range(last_id, len(chunk)))
+        # last_id += len(chunk) + 1
         chunk.to_sql('passport_check_passport', sqliteConnection,
                      if_exists='append', index=False)
 
