@@ -34,36 +34,30 @@ def passport_manual_update(request):
 
 def passport_auto_update(request):
 
-    sqliteConnection = sqlite3.connect(settings.DATABASES['default']['NAME'])
-    result = urllib.request.urlretrieve(
-        PASSPORT_LIST_URL, 'list_of_expired_passports.bz2')
-
-    filepath = result[0]
-    zipfile = bz2.BZ2File(filepath)
-    data = zipfile.read()
-    newfilepath = filepath[:-4]
-    open(newfilepath, 'wb').write(data)
-
     try:
+        sqliteConnection = sqlite3.connect(
+            settings.DATABASES['default']['NAME'])
+        result = urllib.request.urlretrieve(
+            PASSPORT_LIST_URL, 'list_of_expired_passports.bz2')
+
+        filepath = result[0]
+        zipfile = bz2.BZ2File(filepath)
+        data = zipfile.read()
+        newfilepath = filepath[:-4]
+        open(newfilepath, 'wb').write(data)
+
         df = pd.read_csv(newfilepath, dtype={
-                         0: 'S4', 1: 'S6'}, encoding='utf-8')
-    except IOError as e:
-        return HttpResponse(f'<html><body>{e}</body></html>')
+            0: 'S4', 1: 'S6'}, encoding='utf-8')
 
-    try:
         df.insert(0, 'id', range(0, len(df)))
-    except IOError as e:
-        return HttpResponse(f'<html><body>{e}</body></html>')
-
-    try:
         df.to_sql('passport_check_passport', sqliteConnection,
                   if_exists='replace', index=False)
+
+        # createSecondaryIndex = 'CREATE INDEX num_serries_index ON parts (PASSP_SERIES, PASSP_NUMBER)'
+        # sqliteCursor = sqliteConnection.cursor()
+        # sqliteCursor.execute(createSecondaryIndex)
     except IOError as e:
         return HttpResponse(f'<html><body>{e}</body></html>')
-
-    # createSecondaryIndex = 'CREATE INDEX num_serries_index ON parts (PASSP_SERIES, PASSP_NUMBER)'
-    # sqliteCursor = sqliteConnection.cursor()
-    # sqliteCursor.execute(createSecondaryIndex)
 
     return HttpResponse('<html><body>Done.</body></html>')
 
