@@ -41,25 +41,12 @@ def passport_auto_update(request):
     filepath = result[0]
     zipfile = bz2.BZ2File(filepath)
     data = zipfile.read()
-    newfilepath = filepath[:-4]  # assuming the filepath ends with .bz2
+    newfilepath = filepath[:-4]
     open(newfilepath, 'wb').write(data)
-    # load_passporsts(newfilepath)
-    # newfilepath = r'D:\list_of_expired_passports.csv'
-    # dtypes = {'PASSP_SERIES': S4,
-    #           'PASSP_NUMBER': numpy.int64}
-
-    # dp = pd.read_csv(newfilepath, dtype={
-    #                  0: 'S4', 1: 'S6'}, encoding='utf-8') -- рабочая строчка
 
     df = pd.read_csv(newfilepath, dtype={0: 'S4', 1: 'S6'}, encoding='utf-8')
     df.insert(0, 'id', range(0, len(df)))
-    # df['id'] = df['PASSP_SERIES'][0] + df['PASSP_NUMBER'][0]
-    # df['id'] = df.apply(lambda row: create_id(row), axis=1)
-    # df.apply(pd.to_numeric, errors='coerce')
 
-    # dp.infer_objects()
-    # pd.to_numeric(dp, errors='coerce')
-    # dtype={0: 's4', 1: 'int64'}, skiprows=[0]
     df.to_sql('passport_check_passport', sqliteConnection,
               if_exists='replace', index=False, chunksize=70000)
 
