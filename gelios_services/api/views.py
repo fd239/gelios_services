@@ -5,21 +5,21 @@ from rest_framework.renderers import JSONRenderer
 
 from passport_check.models import Passport
 
-PASSPORT_FOUND_COMMENT = 'Не действителен (ИЗЬЯТ, УНИЧТОЖЕН)'
+PASSPORT_FOUND_COMMENT = 'Не действителен'
 PASSPORT_NOT_FOUND_COMMENT = 'Среди недействительных не значится'
 
 
 @api_view(['POST'])
 def passport_check(request):
 
-    SERIES = request.POST.get('series').encode('utf-8')
-    NUBMER = request.POST.get('number').encode('utf-8')
+    SERIES = request.POST.get('series')
+    NUMBER = request.POST.get('number')
 
-    if SERIES is None or NUBMER is None:
+    if SERIES is None or NUMBER is None:
         return Response({'result': False, 'comment': 'Указаны не правильные параметры запроса'}, status=status.HTTP_400_BAD_REQUEST, content_type='application/json')
 
     passport_found = Passport.objects.filter(
-        PASSP_SERIES=SERIES, PASSP_NUMBER=NUBMER).count() > 0
+        PASSP_SERIES=SERIES, PASSP_NUMBER=NUMBER).count() > 0
 
     if passport_found:
         return Response({'result': passport_found, 'comment': PASSPORT_FOUND_COMMENT}, status=status.HTTP_200_OK, content_type='application/json')
