@@ -72,10 +72,6 @@ def passport_auto_update(request):
     return HttpResponse(f'<html><body>Done. Total time = [{datetime.now() - start_time}]</body></html>')
 
 
-def create_id(row):
-    return f'{row.PASSP_NUMBER}{row.PASSP_SERIES}'
-
-
 def load_passporsts(file_path):
 
     Passport.objects.all().delete()
