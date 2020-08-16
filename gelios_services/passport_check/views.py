@@ -54,7 +54,7 @@ def passport_auto_update(request):
 
     last_id = 0
 
-    for chunk in pd.read_csv(newfilepath, dtype={0: 'S4', 1: 'S6'}, chunksize=50_000_000):
+    for chunk in pd.read_csv(newfilepath, dtype={0: 'S4', 1: 'S6'}, chunksize=25_000_000):
 
         chunk.insert(0, 'id', range(last_id, last_id + len(chunk)))
         last_id += len(chunk)
