@@ -60,7 +60,7 @@ def passport_auto_update(request):
         last_id += len(chunk)
 
         str_df = chunk.select_dtypes([np.object])
-        str_df = str_df.stack().str.decode('utf-8').unstack()
+        str_df = str_df.stack().str.decode('latin1').unstack()
 
         for col in str_df:
             chunk[col] = str_df[col]
@@ -69,7 +69,6 @@ def passport_auto_update(request):
                      if_exists='append', index=False)
 
     createSecondaryIndex = 'CREATE INDEX num_serries_index ON passport_check_passport(PASSP_SERIES, PASSP_NUMBER)'
-    sqliteCursor = sqliteConnection.cursor()
     sqliteCursor.execute(createSecondaryIndex)
 
     return HttpResponse(f'<html><body>Done. Total time = [{datetime.now() - start_time}]</body></html>')
