@@ -21,4 +21,4 @@ pip install -r requirements.txt
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the Apache License - see the [LICENSE.md](LICENSE.md) file for details
