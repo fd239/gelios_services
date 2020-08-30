@@ -7,9 +7,13 @@ from .models import Passport
 
 import bz2
 import csv
+import numpy as np
+import os
 import pandas as pd
-import sqlite3
-import urllib
+from sqlalchemy import create_engine
+# import urllib
+from urllib.request import urlopen
+from shutil import copyfileobj
 
 from datetime import datetime
 
@@ -34,40 +38,43 @@ def passport_manual_update(request):
 def passport_auto_update(request):
 
     start_time = datetime.now()
+    db_name = settings.DATABASES['default']['NAME']
+    connection_str = f'postgresql://{settings.DATABASE_USER}:' \
+        f'{settings.DATABASE_PASSWORD}@localhost/{db_name}'
+    eng = create_engine(connection_str)
+    con = eng.connect()
 
-    sqliteConnection = sqlite3.connect(
-        settings.DATABASES['default']['NAME'])
+    con.execute('DELETE FROM passport_check_passport')
+    con.execute('DROP INDEX IF EXISTS num_series_idx')
 
-    sqliteConnection.cursor()
-    sqliteConnection.execute('DELETE FROM passport_check_passport')
-    sqliteConnection.execute('DROP INDEX IF EXISTS num_serries_index')
+    with urlopen(PASSPORT_LIST_URL) as in_stream, bz2.BZ2File(in_stream) as zipfile:
+        data = zipfile.read()
+        newfilepath = 'list_of_expired_passports.csv'
 
-    request_result = urllib.request.urlretrieve(
-        PASSPORT_LIST_URL, 'list_of_expired_passports.bz2')
+        with open(newfilepath, 'wb') as f:
+            f.write(data)
+            last_id = 0
+            colnames = ['series', 'number']
 
-    filepath = request_result[0]
-    zipfile = bz2.BZ2File(filepath)
-    data = zipfile.read()
-    newfilepath = filepath[:-4]
-    open(newfilepath, 'wb').write(data)
+            # TODO: не забыть вернуть chunksize=25_000_000
+            for chunk in pd.read_csv(newfilepath, dtype={0: 'S4', 1: 'S6'}, nrows=25, chunksize=5, names=colnames, header=0):
 
-    last_id = 0
+                chunk.insert(0, 'id', range(last_id, last_id + len(chunk)))
+                last_id += len(chunk)
 
-    for chunk in pd.read_csv(newfilepath, dtype={0: 'S4', 1: 'S6'}, encoding='utf-8', chunksize=50_000_000):
-        chunk.insert(0, 'id', range(last_id, last_id + len(chunk)))
+                str_df = chunk.select_dtypes([np.object])
+                str_df = str_df.stack().str.decode('latin1').unstack()
 
-        # chunk.insert(0, 'id', range(last_id + 1, last_id + len(chunk)))
-        last_id += len(chunk)
-        chunk.to_sql('passport_check_passport', sqliteConnection,
-                     if_exists='append', index=False)
+                for col in str_df:
+                    chunk[col] = str_df[col]
 
-        # df.insert(0, 'id', range(0, len(chunk)))
-        # df.to_sql('passport_check_passport', sqliteConnection,
-        # if_exists = 'append', index = False, chunksize = 100000)
+                chunk.to_sql('passport_check_passport', con,
+                             if_exists='append', index=False)
 
-    createSecondaryIndex = 'CREATE INDEX num_serries_index ON passport_check_passport(PASSP_SERIES, PASSP_NUMBER)'
-    sqliteCursor = sqliteConnection.cursor()
-    sqliteCursor.execute(createSecondaryIndex)
+    create_indexes = 'CREATE UNIQUE INDEX num_series_idx ON passport_check_passport (series, number)'
+    con.execute(create_indexes)
+
+    os.remove(newfilepath)
 
     return HttpResponse(f'<html><body>Done. Total time = [{datetime.now() - start_time}]</body></html>')
 

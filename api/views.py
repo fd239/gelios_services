@@ -19,7 +19,7 @@ def passport_check(request):
         return Response({'result': False, 'comment': 'Указаны не правильные параметры запроса'}, status=status.HTTP_400_BAD_REQUEST, content_type='application/json')
 
     passport_found = Passport.objects.filter(
-        PASSP_SERIES=SERIES, PASSP_NUMBER=NUBMER).count() > 0
+        series=SERIES, number=NUBMER).count() > 0
 
     if passport_found:
         return Response({'result': passport_found, 'comment': PASSPORT_FOUND_COMMENT}, status=status.HTTP_200_OK, content_type='application/json')

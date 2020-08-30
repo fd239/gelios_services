@@ -1,0 +1,30 @@
+version: '3.7'
+
+services:
+  web:
+    build: ./
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./gelios_services:/usr/src/app/
+    ports:
+      - 1337:8000
+    environment:
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
+    depends_on:
+      - redis
+
+  celery:
+    build: ./
+    command: celery worker --app=core --loglevel=info
+    volumes:
+      - ./gelios_services:/usr/src/app
+    environment:
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
+    depends_on:
+      - web
+      - redis
+
+  redis:
+    image: redis:5-alpine

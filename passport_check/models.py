@@ -3,5 +3,5 @@ from django.db import models
 
 
 class Passport(models.Model):
-    PASSP_SERIES = models.CharField(max_length=4)
-    PASSP_NUMBER = models.CharField(max_length=6)
+    series = models.CharField(max_length=4)
+    number = models.CharField(max_length=6)
