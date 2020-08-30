@@ -11,10 +11,7 @@ import numpy as np
 import os
 import pandas as pd
 from sqlalchemy import create_engine
-# import urllib
 from urllib.request import urlopen
-from shutil import copyfileobj
-
 from datetime import datetime
 
 
