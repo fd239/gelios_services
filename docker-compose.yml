@@ -12,11 +12,21 @@ services:
       - CELERY_BROKER=redis://redis:6379/0
       - CELERY_BACKEND=redis://redis:6379/0
     depends_on:
+      - db
       - redis
 
+
+  db:
+    image: postgres:12.0-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=fd239
+      - POSTGRES_PASSWORD=4815162342ss
+      - POSTGRES_DB=django_db 
   celery:
     build: ./
-    command: celery worker --app=core --loglevel=info
+    command: celery worker --app=core --loglevel=info --logfile=logs/celery.log
     volumes:
       - ./gelios_services:/usr/src/app
     environment:
@@ -28,3 +38,6 @@ services:
 
   redis:
     image: redis:5-alpine
+    
+volumes:
+  postgres_data:    

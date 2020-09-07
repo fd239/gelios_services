@@ -7,7 +7,6 @@ from .models import Passport
 
 import bz2
 import csv
-import numpy as np
 import os
 import pandas as pd
 from sqlalchemy import create_engine
@@ -59,7 +58,7 @@ def passport_auto_update(request):
                 chunk.insert(0, 'id', range(last_id, last_id + len(chunk)))
                 last_id += len(chunk)
 
-                str_df = chunk.select_dtypes([np.object])
+                str_df = chunk.select_dtypes(include='object')
                 str_df = str_df.stack().str.decode('latin1').unstack()
 
                 for col in str_df:
